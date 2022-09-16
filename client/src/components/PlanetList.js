@@ -7,7 +7,7 @@ export default function PlanetList() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/planets")
+      .get("/planets")
       .then((res) => {
         console.log(res.data);
         setPlanetList(res.data);
@@ -19,11 +19,7 @@ export default function PlanetList() {
 
   const displayPlanetList = planetList.map((planetInfo) => {
     const { name, population } = planetInfo;
-    return <PlanetItem 
-        key={name} 
-        name={name} 
-        population={population} 
-    />;
+    return <PlanetItem key={name} name={name} population={population} />;
   });
 
   return (
