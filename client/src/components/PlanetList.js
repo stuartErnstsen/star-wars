@@ -17,9 +17,30 @@ export default function PlanetList() {
       });
   }, []);
 
+  function savePlanet(planetName) {
+    console.log("hit");
+    axios
+      .post("/planets", { planetName: planetName, planetList })
+      .then((res) => {
+        console.log(res.data);
+        setPlanetList(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   const displayPlanetList = planetList.map((planetInfo) => {
     const { name, population } = planetInfo;
-    return <PlanetItem key={name} name={name} population={population} />;
+    return (
+      <PlanetItem
+        key={name}
+        name={name}
+        planetInfo={planetInfo}
+        population={population}
+        savePlanet={savePlanet}
+      />
+    );
   });
 
   return (

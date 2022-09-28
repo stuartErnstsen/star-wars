@@ -1,45 +1,40 @@
 //IMPORTS
+require("dotenv").config();
 const express = require("express");
-const axios = require("axios");
 const cors = require("cors");
+const { Sequelize } = require("sequelize");
 
 const app = express();
 
-const PORT = 8000;
+const { PORT, CONNECTION_STRING } = process.env;
+
+//CONTROLLERS
+const planetCtrl = require("./controllers/planetController");
 
 //MIDDLEWARE
 app.use(express.json());
 app.use(cors());
 
-//ENDPOINTS
-app.get("/planets", (req, res) => {
-  //   req.params;
-  //   req.query;
-  //   req.body;
-
-  axios
-    .get("https://swapi.dev/api/planets")
-    .then((res2) => {
-      const planetList = res2.data.results;
-      console.log(planetList);
-      return res.status(200).send(planetList);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+const sequelize = new Sequelize(CONNECTION_STRING, {
+  dialect: "postgres",
+  dialectOptions: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
 });
 
-// app.post("/planets/:newPlanetName", (req, res) => {
-//   console.log(req.params);
-// });
+sequelize.authenticate().then(() => {
+  app.set("db", {
+    sequelize,
+  });
 
-app.post("/planets", (req, res) => {
-  console.log(req.body);
-  //   res.status(200).send("Totally added a new planet!");
-  res.sendStatus(200);
-});
+  //ENDPOINTS
+  app.get("/planets", planetCtrl.getPlanets);
+  app.post("/planets", planetCtrl.savePlanet);
 
-//APP LISTEN
-app.listen(PORT, () => {
-  console.log(`Server up and running on ${PORT}`);
+  //APP LISTEN
+  app.listen(PORT, () => {
+    console.log(`Server up and running on ${PORT}`);
+  });
 });
